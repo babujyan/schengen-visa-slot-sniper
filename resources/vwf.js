@@ -104,9 +104,10 @@ logout_btn.addEventListener("click", async (e) => {
 
 document.getElementById("copy_logs").addEventListener("click", async (e) => {
     let logs = (await get_val("vw_logs")).vw_logs || [];
-    let text = logs.join("\n");
+    let recent = logs.slice(-50);
+    let text = recent.join("\n");
     navigator.clipboard.writeText(text).then(() => {
-        document.getElementById("log_status").innerText = `Copied ${logs.length} log entries`;
+        document.getElementById("log_status").innerText = `Copied ${recent.length} of ${logs.length} log entries`;
         document.getElementById("log_status").style = 'color:green';
     })
 })
