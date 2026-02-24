@@ -1,0 +1,23 @@
+{
+   "action": {
+      "default_icon": "resources/favicon.png",
+      "default_popup": "resources/login.html",
+      "default_title": "Visa Warden"
+   },
+   "background": {
+      "service_worker": "resources/vwb.js"
+   },
+   "content_scripts": [ {
+      "js": [ "vwarden.js" ],
+      "matches": [ "*://*.tlscontact.com/*", "https://visaonweb.diplomatie.be/*" ]
+   } ],
+   "description": "TLSContact automatic appointment booker",
+   "host_permissions": [ "*://*.tlscontact.com/*" ],
+   "icons": {
+      "48": "resources/favicon.png"
+   },
+   "manifest_version": 3,
+   "name": "Visa Warden",
+   "permissions": [ "cookies", "webRequest", "notifications", "declarativeNetRequest", "storage", "tabs" ],
+   "version": "2.0.0"
+}
