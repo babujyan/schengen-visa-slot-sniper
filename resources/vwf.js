@@ -20,11 +20,9 @@ get_val('scanning').then((res) => {
 
     if (scanning) {
         ss.innerText = "Stop Scanning"
-        rr.setAttribute('disabled', '');
     }
     else {
         ss.innerText = "Start Scanning"
-        rr.removeAttribute('disabled');
     }
 })
 
@@ -130,14 +128,12 @@ ss.addEventListener('click', async (e) => {
         chrome.storage.local.set({ 'scanning': true });
         await set_refresh_timer(await get_refresh_rate());
         ss.innerText = "Stop Scanning"
-        rr.setAttribute('disabled', '');
         set_status("Active", "green");
     }
     else {
         log("Scanning stopped ")
         chrome.storage.local.set({ 'scanning': false });
         ss.innerText = "Start Scanning"
-        rr.removeAttribute('disabled');
         set_status("Idle", "orange");
     }
 })
@@ -647,13 +643,11 @@ async function tick() {
             ss.className = ss.className.replace("scan_off", "scan_on");
 
         ss.innerText = "Stop Scanning"
-        rr.setAttribute('disabled', '');
     } else {
         scan_secs.innerText = await get_refresh_rate();
         if (ss.className.indexOf("scan_on") != -1)
             ss.className = ss.className.replace("scan_on", "scan_off");
         ss.innerText = "Start Scanning"
-        rr.removeAttribute('disabled');
     }
 }
 
