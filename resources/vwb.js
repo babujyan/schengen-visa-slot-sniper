@@ -371,12 +371,12 @@ async function parse_appts(appt_info, check_uri, domain) {
     av_start = appt_info.indexOf('[', av_start)
     appts = appt_info.substring(av_start, end)
     j = JSON.parse(appts);
-    // TODO: Check to see if we have appointments (check to see if we can match them too)
-    log("Appointment JSON:")
-    log(JSON.stringify(j));
     let time = new Date(Date.now())
     let ds = time.toLocaleTimeString();
     store_val("find_time", ds);
+    if (j.length == 0) {
+        log(`No appointments available (checked ${check_uri})`)
+    }
     if (j.length != 0) {
         log_info("Appointment found.");
         await create_notification("appt_found", "An appointment has been found!", true);
@@ -558,6 +558,7 @@ async function check_appts(domain, app_id) {
     const cur_date = new Date(Date.now())
     store_val("found_count", 0); // Set to 0 each loop.
 
+    log(`Checking current month appointments...`)
     let res = await fetch(cur_month_url,
         {
             method: "GET",
@@ -614,6 +615,7 @@ async function check_appts(domain, app_id) {
         next_month = 1
     }
 
+    log(`Current month: no appointments. Checking next month (${next_month}-${year})...`)
     next_month_url = `${cur_month_url}?month=${next_month}-${year}`
     res = await fetch(next_month_url,
         {
@@ -647,11 +649,17 @@ async function check_appts(domain, app_id) {
         }
     })
 
-    if (res == 403 || (await parse_appts(res, next_month_url, domain) == 0)) {
+    if (res == 403) {
         set_status("Refreshing Credentials", "yellow")
         refresh_creds(domain);
         return false;
     }
+    if (res != 429) {
+        let next_parse = await parse_appts(res, next_month_url, domain);
+        if (next_parse == 0)
+            log(`Next month (${next_month}-${year}) has no appointment data — skipping`)
+    }
+    log("Scan complete — both months checked.")
     return true;
 }
 
@@ -768,8 +776,6 @@ async function logURL(request) {
             }
             else if (cookie.indexOf("cfwaitingroom") != -1) {
                 waitingroom = cookie
-
-                log("Snatched waitingroom")
                 details = waitingroom.split(';')
                 cf_wait = details[0]
                 cf_wait = cf_wait.slice('__cfwaitingroom='.length)
