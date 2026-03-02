@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
   <img src="resources/favicon.png" alt="Schengen Visa Slot Sniper" width="128" />
   <h1>Schengen Visa Slot Sniper</h1>
   <p>Chrome extension that automatically finds and books Schengen visa appointments on TLSContact.</p>
@@ -99,3 +99,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 ## License
 
 This project is licensed under the GNU General Public License v3.0. See [LICENSE](./LICENSE) for details.
+
