@@ -1,6 +1,8 @@
-# Schengen Visa Slot Sniper
-
-Chrome extension that automatically finds and books Schengen visa appointments on TLSContact.
+<div align="center">
+  <img src="resources/favicon.png" alt="Schengen Visa Slot Sniper" width="128" />
+  <h1>Schengen Visa Slot Sniper</h1>
+  <p>Chrome extension that automatically finds and books Schengen visa appointments on TLSContact.</p>
+</div>
 
 ## Features
 
