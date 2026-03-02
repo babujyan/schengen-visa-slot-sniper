@@ -349,21 +349,59 @@ async function login_belgium(domain) {
     })
 }
 
+function showScanHint(msg, fields) {
+    const hint = document.getElementById("scan_hint");
+    hint.innerText = msg;
+    hint.classList.remove('hidden');
+
+    // Clear any previous highlights
+    for (const el of [tls_user, tls_pass]) {
+        setBorderColor(el, 'border-slate-700');
+    }
+
+    // Highlight the offending fields
+    for (const el of fields) {
+        setBorderColor(el, 'border-red-500');
+        el.addEventListener('input', function handler() {
+            setBorderColor(el, 'border-slate-700');
+            el.removeEventListener('input', handler);
+        });
+    }
+
+    setTimeout(() => { hint.classList.add('hidden'); }, 4000);
+}
+
+function clearScanHint() {
+    const hint = document.getElementById("scan_hint");
+    hint.innerText = '';
+    hint.classList.add('hidden');
+}
+
 async function can_toggle_scan() {
     const tu = await get_tu();
     const tp = await get_tp();
-    if (tu == undefined || tp == undefined
-        || tu == '' || tp == '')
+    const missing = [];
+    if (!tu) missing.push(tls_user);
+    if (!tp) missing.push(tls_pass);
+
+    if (missing.length > 0) {
+        showScanHint("Enter your TLSContact email and password first", missing);
         return false;
+    }
 
     const app_details = await get_stored_application_details();
-    if (app_details == undefined || app_details == null)
+    if (app_details == undefined || app_details == null) {
+        showScanHint("Test your details first — click 'Test Details' below", []);
         return false;
+    }
 
     const tested = await get_tested();
-    if (tested != 1)
+    if (tested != 1) {
+        showScanHint("Test your details first — click 'Test Details' below", []);
         return false;
+    }
 
+    clearScanHint();
     return true;
 }
 
@@ -691,25 +729,8 @@ async function tick() {
 
     ////
 
-    tu = await get_tu();
-    tp = await get_tp();
-    if (tu == undefined || tp == undefined
-        || tu == '' || tp == '') {
-        //TODO: Make button look disabled or flash red when they click Start without filled details
-        ss.setAttribute("disabled", '');
-        set_scanning(false);
-        return;
-    }
-    else {
-        if (await get_tested())
-            ss.removeAttribute('disabled')
-    }
-
-    const can_scan = await can_toggle_scan();
-    if (can_scan == false && !(await get_is_scanning())) {
-        // Only disable the button — don't kill an active scan from the popup
-        ss.setAttribute("disabled", '');
-    }
+    // Always keep the button enabled so users get feedback on click
+    ss.removeAttribute('disabled');
 
     await check_cf_blocked();
 
