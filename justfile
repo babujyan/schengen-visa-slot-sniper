@@ -27,3 +27,18 @@ fmt:
 # Lint + auto-fix
 lint-fix:
     bunx biome check --fix .
+
+# Package extension as ZIP for Chrome Web Store upload
+package: build
+    rm -f schengen-visa-slot-sniper.zip
+    zip -r schengen-visa-slot-sniper.zip \
+        manifest.json \
+        content.js \
+        lib/ \
+        resources/background.js \
+        resources/popup.js \
+        resources/popup.html \
+        resources/dist/output.css \
+        resources/favicon.png \
+        resources/favicon_small.png \
+        -x "*.DS_Store"

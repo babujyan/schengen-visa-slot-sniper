@@ -50,6 +50,7 @@ Log prefix: `[SSS]`.
 
 ## Code Conventions
 
+- Sort functions and top-level variables **alphabetically** within each file (where hoisting allows it safely)
 - No build step for JS — vanilla scripts loaded directly by the extension
 - Tailwind classes in HTML + JS (via `classList` toggling, never inline `el.style`)
 - Status colors mapped through `STATUS_COLOR_MAP` (full static class strings, no dynamic construction)
