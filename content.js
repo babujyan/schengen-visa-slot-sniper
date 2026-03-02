@@ -1,25 +1,25 @@
-console.log("VWarden Extension Initialized.")
-const VW_MAX_LOGS = 500;
+console.log("SSS Content Script Initialized.")
+const SSS_MAX_LOGS = 500;
 function log(msg) {
     let time = new Date(Date.now())
     let ds = time.toLocaleTimeString();
     let entry = ds + " [CS] " + msg;
-    console.log("[VW] " + entry)
-    chrome.storage.local.get("vw_logs").then((res) => {
-        let logs = res.vw_logs || [];
+    console.log("[SSS] " + entry)
+    chrome.storage.local.get("sss_logs").then((res) => {
+        let logs = res.sss_logs || [];
         logs.push(entry);
-        if (logs.length > VW_MAX_LOGS)
-            logs = logs.slice(-VW_MAX_LOGS);
-        chrome.storage.local.set({ "vw_logs": logs });
+        if (logs.length > SSS_MAX_LOGS)
+            logs = logs.slice(-SSS_MAX_LOGS);
+        chrome.storage.local.set({ "sss_logs": logs });
     })
 }
 
 async function set_tested(val) {
-    return (await chrome.storage.local.set({ "vwtested": val }))
+    return (await chrome.storage.local.set({ "sss_tested": val }))
 }
 
 async function get_tested(val) {
-    return (await chrome.storage.local.get("vwtested")).vwtested
+    return (await chrome.storage.local.get("sss_tested")).sss_tested
 }
 
 async function get_membership() {
@@ -27,15 +27,15 @@ async function get_membership() {
 }
 
 async function get_booking_attempt() {
-    return (await get_val("vw_booking_attempt")).vw_booking_attempt
+    return (await get_val("sss_booking_attempt")).sss_booking_attempt
 }
 
 async function set_cs_done(val) {
-    return (await chrome.storage.local.set({ "vwcsdone": val }))
+    return (await chrome.storage.local.set({ "sss_cs_done": val }))
 }
 
 async function set_request_close(val) {
-    return (await chrome.storage.local.set({ "vwrequest_close": val }))
+    return (await chrome.storage.local.set({ "sss_request_close": val }))
 }
 
 async function check_logged_in() {
@@ -63,7 +63,7 @@ async function request_notification(noti) {
 }
 
 async function get_user() {
-    return (await get_val("vwarden_user")).vwarden_user;
+    return (await get_val("sss_user")).sss_user;
 }
 
 function set_status(msg, color) {
@@ -140,7 +140,7 @@ async function extract_application_id_from_groups() {
                 return { app_num, name, location };
             }
         }
-        set_status("Error vwj.001", "red")
+        set_status("Error sss_cs.001", "red")
         // }
         return null;
     })
@@ -246,7 +246,7 @@ async function alert_successful_booking(booking_info) {
 }
 
 async function verify_successful_booking(booking_info) {
-    store_val("vw_booking_attempt", null); // Clear booking attempt.
+    store_val("sss_booking_attempt", null); // Clear booking attempt.
     const fgId = booking_info.body_data.fgId;
     const domain_large = booking_info.book_uri
     // https://visas-fr.tlscontact.com/en-us/24958323/workflow/appointment-booking?month=3-2026
@@ -320,7 +320,7 @@ async function attempt_cancel(booking_info) {
 
     log_info("Attempting to cancel existing appointment...");
     const orig = cancel.original_booking;
-    send_telegram_msg(`<b>Visa Warden</b>\n⏳ Cancelling existing appointment (${orig.date} ${orig.time}) to reschedule...`);
+    send_telegram_msg(`<b>SSS</b>\n⏳ Cancelling existing appointment (${orig.date} ${orig.time}) to reschedule...`);
 
     const res = await fetch(cancel.cancel_uri,
         {
@@ -343,20 +343,20 @@ async function attempt_cancel(booking_info) {
         if (response.status == 200 || response.status == 303) {
             if (text.indexOf('FAILED') != -1) {
                 log_error("Cancel returned FAILED response");
-                send_telegram_msg(`<b>Visa Warden</b>\n❌ Cancel failed — server rejected. Keeping existing appointment.`);
+                send_telegram_msg(`<b>SSS</b>\n❌ Cancel failed — server rejected. Keeping existing appointment.`);
                 return false;
             }
             log_info("Cancel appears successful");
-            send_telegram_msg(`<b>Visa Warden</b>\n✅ Existing appointment (${orig.date} ${orig.time}) cancelled.`);
+            send_telegram_msg(`<b>SSS</b>\n✅ Existing appointment (${orig.date} ${orig.time}) cancelled.`);
             return true;
         }
 
         log_error("Cancel failed with status: " + response.status);
-        send_telegram_msg(`<b>Visa Warden</b>\n❌ Cancel failed (HTTP ${response.status}). Keeping existing appointment.`);
+        send_telegram_msg(`<b>SSS</b>\n❌ Cancel failed (HTTP ${response.status}). Keeping existing appointment.`);
         return false;
     }).catch((err) => {
         log_error("Cancel fetch error: " + err.message);
-        send_telegram_msg(`<b>Visa Warden</b>\n❌ Cancel error: ${err.message}`);
+        send_telegram_msg(`<b>SSS</b>\n❌ Cancel error: ${err.message}`);
         return false;
     });
 
@@ -444,7 +444,7 @@ async function get_belgian_onboarding() {
     ).then(async (result) => {
         if (result.status != 200) {
             // TODO: Trigger Fail! Cannot read application info!!
-            set_status("Error vwj.002", "red");
+            set_status("Error sss_cs.002", "red");
             return false;
         }
 
@@ -490,7 +490,7 @@ async function handle_belgium(domain) {
                 if (text.indexOf('Invalid username') != -1) {
                     log("Failed to login 1...");
                     // TODO: Trigger Fail
-                    set_status("Error vwj.003", "red");
+                    set_status("Error sss_cs.003", "red");
                     return false;
                 }
             }
@@ -499,7 +499,7 @@ async function handle_belgium(domain) {
             if (token == false) {
                 log("Failed to login 2...");
                 //TRIGGER FAIL
-                set_status("Error vwj.004", "red");
+                set_status("Error sss_cs.004", "red");
                 return false;
             }
 
@@ -531,7 +531,7 @@ async function main() {
             let cancel_ok = await attempt_cancel(booking_attempt);
             if (!cancel_ok) {
                 log_error("Cancel failed — keeping existing appointment, skipping new booking");
-                store_val("vw_booking_attempt", null);
+                store_val("sss_booking_attempt", null);
                 set_request_close(true);
                 return;
             }
@@ -547,7 +547,7 @@ async function main() {
                 if (cancelled) {
                     const bd = booking_attempt.body_data;
                     const orig = booking_attempt.cancel.original_booking;
-                    send_telegram_msg(`<b>Visa Warden</b>\n✅ Rescheduled! ${orig.date} ${orig.time} → ${bd.date} ${bd.time} (${bd.centre})`);
+                    send_telegram_msg(`<b>SSS</b>\n✅ Rescheduled! ${orig.date} ${orig.time} → ${bd.date} ${bd.time} (${bd.centre})`);
                 }
                 let details = await get_application_details()
                 window.location.href = `https://${domain_lang}/${details.app_id}/workflow/order-summary`
@@ -563,7 +563,7 @@ async function main() {
         if (cancelled && !booking_succeeded) {
             log_error("New booking failed after cancel — attempting to re-book original slot");
             const original = booking_attempt.cancel.original_booking;
-            send_telegram_msg(`<b>Visa Warden</b>\n⚠️ New slot booking failed. Attempting to re-book original (${original.date} ${original.time})...`);
+            send_telegram_msg(`<b>SSS</b>\n⚠️ New slot booking failed. Attempting to re-book original (${original.date} ${original.time})...`);
             const fallback = {
                 ...booking_attempt,
                 body_data: {
@@ -579,7 +579,7 @@ async function main() {
                 if (res == 1) {
                     log_info("Fallback re-booking succeeded — original slot restored");
                     restored = true;
-                    send_telegram_msg(`<b>Visa Warden</b>\n✅ Original appointment (${original.date} ${original.time}) re-booked successfully.`);
+                    send_telegram_msg(`<b>SSS</b>\n✅ Original appointment (${original.date} ${original.time}) re-booked successfully.`);
                     let details = await get_application_details()
                     window.location.href = `https://${domain_lang}/${details.app_id}/workflow/order-summary`
                     break;
@@ -589,7 +589,7 @@ async function main() {
             if (!restored) {
                 log_error("CRITICAL: Failed to re-book original slot! Manual rebooking needed!");
                 request_notification("CRITICAL: Original appointment cancelled but could not re-book! Check immediately!");
-                send_telegram_msg(`<b>Visa Warden</b>\n🚨 CRITICAL: Cancelled old appointment but failed to book new OR re-book original (${original.date} ${original.time}). Manual action needed!`);
+                send_telegram_msg(`<b>SSS</b>\n🚨 CRITICAL: Cancelled old appointment but failed to book new OR re-book original (${original.date} ${original.time}). Manual action needed!`);
             }
         }
 
@@ -600,7 +600,7 @@ async function main() {
             set_request_close(true);
         }
 
-        store_val("vw_booking_attempt", null);
+        store_val("sss_booking_attempt", null);
         return;
     }
 
@@ -620,7 +620,7 @@ async function main() {
     if (document.URL.indexOf("diplomatie") != -1) {
         if (handle_belgium(document.URL) == false) {
             request_notification("Login details are incorrect, please double check!");
-            set_status("Error vwj.005", "red");
+            set_status("Error sss_cs.005", "red");
             set_refreshing(false);
         }
         return;
@@ -642,7 +642,7 @@ async function main() {
         else if (document.URL.indexOf("login") != -1 || cur_url.indexOf('auth') != -1) {
             if (document.body.innerHTML.indexOf("tls-input_error") != -1) {
                 request_notification("Login details are incorrect, please double check!");
-                set_status("Error vwj.006", "red");
+                set_status("Error sss_cs.006", "red");
                 set_refreshing(false);
                 return;
             }
@@ -676,8 +676,8 @@ async function main() {
             get_tls_account_details().then((res) => {
                 if (res.tu == null || res.tu == undefined || res.tp == null || res.tp == undefined) {
                     failed = true;
-                    request_notification("Please input your login details in the Visa Warden extension!")
-                    set_status("Error vwj.007", "red");
+                    request_notification("Please input your login details in the Schengen Slot Sniper extension!")
+                    set_status("Error sss_cs.007", "red");
                     set_refreshing(false);
                     return;
                 }

@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "name": "schengen-slot-sniper",
+  "version": "3.0.0",
+  "description": "TLSContact automatic appointment booker",
+  "dependencies": {
+    "@tailwindcss/cli": "^4",
+    "tailwindcss": "^4"
+  },
+  "scripts": {
+    "build": "bunx @tailwindcss/cli -i resources/input.css -o resources/dist/output.css --minify",
+    "watch": "bunx @tailwindcss/cli -i resources/input.css -o resources/dist/output.css --watch"
+  }
+}

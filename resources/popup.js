@@ -1,3 +1,19 @@
+function setTextColor(el, cls) {
+    el.classList.remove('text-red-400','text-green-400','text-cyan-400','text-slate-400','text-yellow-400','text-orange-400','text-gray-400');
+    el.classList.add(cls);
+}
+function setBorderColor(el, cls) {
+    el.classList.remove('border-red-500','border-green-500','border-slate-700');
+    el.classList.add(cls);
+}
+const STATUS_COLOR_MAP = {
+    'green':'text-green-400', 'Green':'text-green-400',
+    'red':'text-red-400', 'Red':'text-red-400',
+    'yellow':'text-yellow-400', 'Yellow':'text-yellow-400',
+    'orange':'text-orange-400', 'Orange':'text-orange-400',
+    'cyan':'text-cyan-400', 'Cyan':'text-cyan-400',
+};
+
 // THIS file just handles the details/data in the extension popup
 let scan_secs = document.getElementById("next_refresh")
 let cur_time = 0, booking = false, scanning = false
@@ -32,7 +48,7 @@ tier_descs = ["All features unlocked"]
 function log(msg) {
     let time = new Date(Date.now())
     let ds = time.toLocaleTimeString();
-    console.log("[VW] " + ds + " -- " + msg)
+    console.log("[SSS] " + ds + " -- " + msg)
 }
 
 function set_status(msg, color) {
@@ -63,7 +79,7 @@ let ss = document.getElementById('start_scan')
 let tls_dest = document.getElementById('tlsdest')
 let test_details = document.getElementById("tls_test");
 
-let logout_btn = document.getElementById("vwlogout")
+let logout_btn = document.getElementById("sss_logout")
 let reschedule_toggle = document.getElementById("reschedule_mode")
 
 
@@ -118,26 +134,26 @@ tg_test_btn.addEventListener("click", async () => {
     const chat = tg_chat_id.value;
     if (!token || !chat) {
         status_el.innerText = "Enter bot token and chat ID first";
-        status_el.style = 'color:red';
+        setTextColor(status_el, 'text-red-400');
         return;
     }
     try {
         const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: chat, text: "Visa Warden test — Telegram notifications working!" })
+            body: JSON.stringify({ chat_id: chat, text: "SSS test — Telegram notifications working!" })
         });
         if (res.ok) {
             status_el.innerText = "Test message sent!";
-            status_el.style = 'color:green';
+            setTextColor(status_el, 'text-green-400');
         } else {
             const err = await res.json();
             status_el.innerText = "Failed: " + (err.description || res.status);
-            status_el.style = 'color:red';
+            setTextColor(status_el, 'text-red-400');
         }
     } catch (e) {
         status_el.innerText = "Network error: " + e.message;
-        status_el.style = 'color:red';
+        setTextColor(status_el, 'text-red-400');
     }
 })
 
@@ -146,12 +162,12 @@ logout_btn.addEventListener("click", async (e) => {
 })
 
 document.getElementById("copy_logs").addEventListener("click", async (e) => {
-    let logs = (await get_val("vw_logs")).vw_logs || [];
+    let logs = (await get_val("sss_logs")).sss_logs || [];
     let recent = logs.slice(-50);
     let text = recent.join("\n");
     navigator.clipboard.writeText(text).then(() => {
         document.getElementById("log_status").innerText = `Copied ${recent.length} of ${logs.length} log entries`;
-        document.getElementById("log_status").style = 'color:green';
+        setTextColor(document.getElementById("log_status"), 'text-green-400');
     })
 })
 
@@ -197,7 +213,7 @@ test_details.addEventListener("click", async (e) => {
 
     set_tested(0);
     set_refreshing(true);
-    await store_val("vwrequest_close", false)
+    await store_val("sss_request_close", false)
     set_status("Testing Details", "Yellow")
     if (domain.indexOf('diplomatie') != -1) {
         if (!login_belgium(domain)) {
@@ -238,25 +254,25 @@ async function set_testing_message(msg, is_error) {
     const test_log = document.getElementById("tls_test_log");
     test_log.innerText = msg;
     if (is_error)
-        test_log.style = 'color:red';
+        setTextColor(test_log, 'text-red-400');
     else
-        test_log.style = 'color:green';
+        setTextColor(test_log, 'text-green-400');
 }
 
 async function get_tested() {
     const detail_div = document.getElementById("tls_details");
 
-    const val = (await get_val("vwtested")).vwtested
+    const val = (await get_val("sss_tested")).sss_tested
     if (val == 0) {
-        detail_div.style = 'border-color: red';
+        setBorderColor(detail_div, 'border-red-500');
         set_testing_message("You must test your details before you can begin scanning!", true);
     }
     else if (val == 1) {
-        detail_div.style = 'border-color: green';
+        setBorderColor(detail_div, 'border-green-500');
         set_testing_message("Details working fine!", false);
     }
     else if (val == -1) {
-        detail_div.style = 'border-color: red';
+        setBorderColor(detail_div, 'border-red-500');
         set_testing_message("Your details are incorrect, please check them!", true);
     }
 
@@ -267,24 +283,24 @@ async function set_tested(val) {
     const detail_div = document.getElementById("tls_details");
 
     if (val == 0) {
-        detail_div.style = 'border-color: red';
+        setBorderColor(detail_div, 'border-red-500');
         set_status("Awaiting Testing", "Red");
         set_testing_message("You must test your details before you can begin scanning!", true);
 
     }
     else if (val == 1) {
-        detail_div.style = 'border-color: green';
+        setBorderColor(detail_div, 'border-green-500');
         set_status("Idle", "Orange");
         set_testing_message("Details working fine!", false);
 
     }
     else if (val == -1) {
-        detail_div.style = 'border-color: red';
+        setBorderColor(detail_div, 'border-red-500');
         set_testing_message("Awaiting proper details", "Red");
         set_testing_message("Your details are incorrect, please check them!", true);
     }
 
-    return (await store_val("vwtested", val))
+    return (await store_val("sss_tested", val))
 }
 
 async function set_refreshing(val) {
@@ -320,7 +336,7 @@ async function get_membership() {
 }
 
 async function get_username() {
-    return (await get_val("vwarden_user")).vwarden_user
+    return (await get_val("sss_user")).sss_user
 }
 
 /////////////////////////////////////////////////////////////////
@@ -397,7 +413,7 @@ async function store_tls_details(e) {
     }
 }
 
-async function do_vw_login(user, pass) {
+async function do_sss_login(user, pass) {
     return 0;
 }
 
@@ -408,12 +424,11 @@ async function disable_div_inputs(div_element) {
 }
 
 async function hide_div(div_element) {
-    if (div_element.className.indexOf("deactivated") == -1)
-        div_element.className = div_element.className + " deactivated"
+    div_element.classList.add('hidden');
 }
 
 async function check_functionality(membership) {
-    store_val("vw_autobooking", 2);
+    store_val("sss_autobooking", 2);
     hide_div(document.getElementById('c2a'));
 }
 
@@ -524,23 +539,23 @@ function set_stored_tls_details() {
 
 
 async function switch_windows(logged_in) {
-    let main_fn = document.getElementById('vwmain');
+    let main_fn = document.getElementById('sss_main');
     let login_fn = document.getElementById('logindetails');
     if (logged_in) {
-        hide_div(login_fn);
-        main_fn.className = main_fn.className.replaceAll('deactivated', '');
+        login_fn.classList.add('hidden');
+        main_fn.classList.remove('hidden');
     }
     else {
-        hide_div(main_fn);
-        login_fn.className = login_fn.className.replaceAll('deactivated', '');
+        main_fn.classList.add('hidden');
+        login_fn.classList.remove('hidden');
     }
 }
 
 function clear_cache() {
-    store_val("vwarden_user", null);
-    store_val("vwarden_code", null);
-    store_val("vw_autobooking", 0);
-    store_val("vwarden_membership", -1);
+    store_val("sss_user", null);
+    store_val("sss_code", null);
+    store_val("sss_autobooking", 0);
+    store_val("sss_membership", -1);
     store_val("scanning", false);
     store_val("cred_refresh", false);
     store_val("tls_details", null);
@@ -548,9 +563,9 @@ function clear_cache() {
     store_val("tu", null);
     store_val("ti", null);
     store_val("td", null);
-    store_val("vwtested", 0);
+    store_val("sss_tested", 0);
     store_val("user_creds", 0);
-    store_val("vw_booking_attempt", null);
+    store_val("sss_booking_attempt", null);
     store_val("cf_blocked", false);
     store_val("status", null);
     // Premium settings
@@ -562,7 +577,7 @@ function clear_cache() {
     store_val("premium_accept_prime", false);
     store_val("reschedule_mode", false);
     store_val("current_booking", null);
-    store_val("vw_logs", []);
+    store_val("sss_logs", []);
     // Telegram
     store_val("tg_enabled", false);
     store_val("tg_bot_token", null);
@@ -576,13 +591,13 @@ async function check_cf_blocked() {
 
     if (blocked) {
         extension_yap.innerText = "Your refresh rate is too low or you opened TLS too much while we've been scanning, you've been blocked. Consider increasing it or letting the bot search alone. You will have to wait up to 24 hours until your block expires.";
-        extension_yap.style = 'color:red';
-        extension_settings.style = 'border-color: red';
+        setTextColor(extension_yap, 'text-red-400');
+        setBorderColor(extension_settings, 'border-red-500');
     }
     else {
         extension_yap.innerText = "Your refresh rate is currently OK. We will inform you if you get blocked due to it being too low.";
-        extension_yap.style = 'color:green';
-        extension_settings.style = 'border-color: green';
+        setTextColor(extension_yap, 'text-green-400');
+        setBorderColor(extension_settings, 'border-green-500');
     }
 }
 
@@ -595,7 +610,7 @@ async function tick() {
 
     await check_functionality(membership);
     get_username().then(async (res) => {
-        document.getElementById("vwusername").innerText = res;
+        document.getElementById("sss_username").innerText = res;
         let tt = document.getElementById('tier_type');
         tt.innerText = tiers[Math.min(membership, 5)];
         let td = document.getElementById('tier_desc');
@@ -629,19 +644,19 @@ async function tick() {
     let ac = document.getElementById("apt_count");
     ac.innerText = `${find_count} appointment(s)`;
     if (find_count > 0)
-        ac.style = 'color:cyan';
+        setTextColor(ac, 'text-cyan-400');
     else
-        ac.style = 'color:red';
+        setTextColor(ac, 'text-red-400');
 
     ///// Current booking display
     let booking_display = document.getElementById("current_booking_display");
     let current_booking = (await get_val("current_booking")).current_booking;
     if (current_booking != null && current_booking != undefined) {
         booking_display.innerText = `Current booking: ${current_booking.date} at ${current_booking.time}`;
-        booking_display.style = 'color:cyan';
+        setTextColor(booking_display, 'text-cyan-400');
     } else {
         booking_display.innerText = "No active booking";
-        booking_display.style = 'color:gray';
+        setTextColor(booking_display, 'text-gray-400');
     }
 
     ///// Status color
@@ -650,18 +665,18 @@ async function tick() {
     let status_stored = (await get_val("status")).status
     if (status_stored == undefined) {
         stat.innerText = "Idle";
-        stat.style = `color:Yellow`
+        setTextColor(stat, 'text-yellow-400');
     }
     else {
         stat.innerText = status_stored.msg ?? "Active";
-        stat.style = `color:${status_stored.color ?? "Green"}`
+        setTextColor(stat, STATUS_COLOR_MAP[status_stored.color] || 'text-green-400');
     }
 
     /// Agency stuff
 
     let agent = document.getElementById("agent_yap");
     if (membership == 5) {
-        agent.className = 'fine_print';
+        agent.classList.remove('hidden');
         let creds = document.getElementById("cred_count");
         let u_creds = (await get_val("user_creds")).user_creds
 
@@ -671,7 +686,7 @@ async function tick() {
             set_scanning(false); // No scanning allowed!
     }
     else
-        agent.className = 'fine_print deactivated';
+        agent.classList.add('hidden');
 
 
     ////
@@ -700,21 +715,25 @@ async function tick() {
 
     if (await get_is_scanning()) {
         scan_secs.innerText = await get_refresh_timer();
-        if (ss.className.indexOf("scan_off") != -1)
-            ss.className = ss.className.replace("scan_off", "scan_on");
+        if (ss.classList.contains("scan-off")) {
+            ss.classList.remove("scan-off");
+            ss.classList.add("scan-on");
+        }
 
         ss.innerText = "Stop Scanning"
     } else {
         scan_secs.innerText = await get_refresh_rate();
-        if (ss.className.indexOf("scan_on") != -1)
-            ss.className = ss.className.replace("scan_on", "scan_off");
+        if (ss.classList.contains("scan-on")) {
+            ss.classList.remove("scan-on");
+            ss.classList.add("scan-off");
+        }
         ss.innerText = "Start Scanning"
     }
 }
 
-store_val("vwarden_user", "Local User");
-store_val("vwarden_membership", 0);
-store_val("vw_autobooking", 2);
+store_val("sss_user", "Local User");
+store_val("sss_membership", 0);
+store_val("sss_autobooking", 2);
 set_stored_tls_details();
 setInterval(tick, 500);
 switch_windows(true);

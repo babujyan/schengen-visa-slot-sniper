@@ -6,18 +6,18 @@
  */
 let tick_interval = null
 let iteration = 0
-const VW_MAX_LOGS = 500;
+const SSS_MAX_LOGS = 500;
 function log(msg) {
     let time = new Date(Date.now())
     let ds = time.toLocaleTimeString();
     let entry = ds + " [BG] " + msg;
-    console.log("[VW] " + entry)
-    chrome.storage.local.get("vw_logs").then((res) => {
-        let logs = res.vw_logs || [];
+    console.log("[SSS] " + entry)
+    chrome.storage.local.get("sss_logs").then((res) => {
+        let logs = res.sss_logs || [];
         logs.push(entry);
-        if (logs.length > VW_MAX_LOGS)
-            logs = logs.slice(-VW_MAX_LOGS);
-        chrome.storage.local.set({ "vw_logs": logs });
+        if (logs.length > SSS_MAX_LOGS)
+            logs = logs.slice(-SSS_MAX_LOGS);
+        chrome.storage.local.set({ "sss_logs": logs });
     })
 }
 
@@ -67,7 +67,7 @@ async function query_membership(user) {
 }
 
 async function get_user() {
-    return (await get_val("vwarden_user")).vwarden_user;
+    return (await get_val("sss_user")).sss_user;
 }
 
 async function log_error(msg) {
@@ -253,7 +253,7 @@ async function autobook_appointment(check_uri, lang, centre, domain, date, time,
         cancel: cancel_data,
     }
 
-    await store_val("vw_booking_attempt", book_object)
+    await store_val("sss_booking_attempt", book_object)
     log("Spawning tab")
     let creating = chrome.tabs.create({ url: `https://${domain}`, active: false, index: 0 }) // Likely JUST the clearance needed to change.
 }
@@ -281,7 +281,7 @@ async function create_notification(noti_name, msg, interaction) {
     return await chrome.notifications.create(noti_name, {
         type: "basic",
         iconUrl: chrome.runtime.getURL('resources/favicon.png'),
-        title: "Visa Warden",
+        title: "Schengen Slot Sniper",
         message: msg,
         requireInteraction: noti_name == "Noti_Pipe" || interaction,
         priority: 2
@@ -413,11 +413,11 @@ async function parse_appts(appt_info, check_uri, domain) {
 
     av_start = appt_info.indexOf('availableAppointments')
     if (av_start == -1) {
-        let failed_attempts = (await get_val('vw_failed_attempts')).vw_failed_attempts
+        let failed_attempts = (await get_val('sss_failed_attempts')).sss_failed_attempts
         if (failed_attempts == undefined || failed_attempts == null)
             failed_attempts = 0;
         failed_attempts++;
-        store_val('vw_failed_attempts', failed_attempts);
+        store_val('sss_failed_attempts', failed_attempts);
         log("Serverside failure. Likely need to relog, or application is purged")
         if (failed_attempts >= max_fails) {
             log("Repeat failure! Check account validity!")
@@ -427,7 +427,7 @@ async function parse_appts(appt_info, check_uri, domain) {
         }
     }
 
-    store_val('vw_failed_attempts', 0);
+    store_val('sss_failed_attempts', 0);
 
     end = appt_info.indexOf(',"show', av_start)
     av_start = appt_info.indexOf('[', av_start)
@@ -445,11 +445,11 @@ async function parse_appts(appt_info, check_uri, domain) {
 
         let slot_count = j.reduce((sum, day) => sum + day.slots.filter(s => s.labels.length > 0).length, 0);
         let dates = j.map(d => d.day).join(", ");
-        send_telegram_msg(`<b>Visa Warden</b>\nAppointment found! ${slot_count} slot(s) on: ${dates}`);
+        send_telegram_msg(`<b>SSS</b>\nAppointment found! ${slot_count} slot(s) on: ${dates}`);
 
         log("Found an appointment!")
-        const is_autobook = await get_val("vw_autobooking")
-        if (is_autobook.vw_autobooking > 0) {
+        const is_autobook = await get_val("sss_autobooking")
+        if (is_autobook.sss_autobooking > 0) {
             // let start_date = null, start_time = null, last_date = null, last_time = null, days = null;
             let premium_obj = await get_premium_filtering();
             let current_booking = (await get_val("current_booking")).current_booking || null;
@@ -519,7 +519,7 @@ async function get_belgian_onboarding() {
     ).then(async (result) => {
         if (result.status != 200) {
             // TODO: Trigger Fail! Cannot read application info!!
-            set_status("Error vwb.003", "red");
+            set_status("Error sss_bg.003", "red");
             return false;
         }
 
@@ -564,7 +564,7 @@ async function login_belgium(domain) {
                 if (text.indexOf('Invalid username') != -1) {
                     log("Failed to login 1...");
                     // TODO: Trigger Fail
-                    set_status("Error vwb.004", "red");
+                    set_status("Error sss_bg.004", "red");
                     return false;
                 }
             }
@@ -573,7 +573,7 @@ async function login_belgium(domain) {
             if (token == false) {
                 log("Failed to login 2...");
                 //TRIGGER FAIL
-                set_status("Error vwb.005", "red");
+                set_status("Error sss_bg.005", "red");
                 return false;
             }
 
@@ -611,7 +611,7 @@ async function refresh_creds(domain) {
                 }
             }
             else {
-                set_status("Error vwb.001", "red")
+                set_status("Error sss_bg.001", "red")
                 log("Cannot refresh creds! Figure it out!!!")
                 create_notification("captcha_noti", "Please open up the TLSContact website!", true)
             }
@@ -665,7 +665,7 @@ async function check_appts(domain, app_id) {
         rr = await get_refresh_rate()
         log_error(`Rate limit at ${rr}`)
         create_notification("rate_limit", "You have been rate limited. Your refresh rate is too low or you're opening the site too much while the bot is searching. Consider increasing it and trying again in a few hours and letting the bot work alone.", true);
-        // set_status("Error vwb.002", "red");
+        // set_status("Error sss_bg.002", "red");
         return false;
     }
     else if (res == 403 || (await parse_appts(res, cur_month_url, domain) == 0)) {
@@ -734,8 +734,8 @@ async function begin_search() {
     // check our shite
     tls_obj = (await get_val('tls_details')).tls_details
     if (tls_obj == undefined) {
-        set_status("Error vwb.006", "red");
-        return (await chrome.storage.local.set({ "vwtested": 0 }))
+        set_status("Error sss_bg.006", "red");
+        return (await chrome.storage.local.set({ "sss_tested": 0 }))
     }
     else {
         set_status("Active", "green");
@@ -776,13 +776,13 @@ async function tick() {
         store_val("noti_pipe", null);
     }
 
-    let request_close = (await get_val("vwrequest_close")).vwrequest_close
+    let request_close = (await get_val("sss_request_close")).sss_request_close
     let cred_refresh = (await get_val("cred_refresh")).cred_refresh
 
     if (request_close && cred_refresh == false) {
-        chrome.storage.local.set({ "vwrequest_close": false })
+        chrome.storage.local.set({ "sss_request_close": false })
         await close_tls_tab()
-        // We have been requested to close by vwarden.js
+        // We have been requested to close by content.js
         set_scanning(true);
         cred_refresh_counter = 0;
     }
@@ -928,9 +928,9 @@ async function initialize_listeners() {
 }
 
 initialize_listeners().then(() => {
-    log("VWarden Background Listeners Initialized. Ready to Operate")
-    store_val("vwarden_membership", 0);
-    store_val("vw_autobooking", 2);
+    log("SSS Background Initialized.")
+    store_val("sss_membership", 0);
+    store_val("sss_autobooking", 2);
     setInterval(tick, 1000);
 })
 // Can then slim our DB on server

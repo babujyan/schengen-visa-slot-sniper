@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="dist/output.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-[Space_Grotesk] w-[380px] p-4 space-y-4">
+
+    <!-- Login Section -->
+    <div id="logindetails" class="flex flex-col gap-4 text-center">
+        <h3 class="text-xl font-semibold text-indigo-400">Schengen Slot Sniper<br><span class="text-sm font-normal text-slate-400">TLSContact Visa Bot</span></h3>
+        <input id="sss_user_login" type="text" placeholder="Username"
+            class="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+        <input id="sss_pass" type="password" placeholder="Password"
+            class="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+        <div class="flex gap-3">
+            <button id="sss_login" class="flex-1 bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Login</button>
+            <button id="sss_register" class="flex-1 bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Register</button>
+        </div>
+        <p id="login_err" class="text-red-400 text-sm"></p>
+    </div>
+
+    <!-- Main Section -->
+    <div id="sss_main" class="hidden flex flex-col gap-4 text-center">
+        <span id="sss_username" class="hidden"></span>
+        <span id="tier_type" class="hidden"></span>
+        <span id="tier_desc" class="hidden"></span>
+        <span id="agent_yap" class="hidden"><span id="cred_count"></span></span>
+
+        <!-- Status & Controls -->
+        <div id="ext_controls" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">Status — <span id="status"></span></h4>
+            <p class="text-xs text-slate-400">Checking this application:<br>
+                <span id="gname" class="text-emerald-400"></span> —
+                <span id="gid" class="text-emerald-400"></span> —
+                <span id="gloc" class="text-emerald-400"></span>
+            </p>
+            <p class="text-sm text-slate-300">Next refresh in:<br>
+                <span id="next_refresh" class="text-emerald-400">N/A</span><br>seconds
+            </p>
+            <div class="flex gap-3">
+                <button id="start_scan" class="flex-1 scan-off rounded-md py-2 text-sm font-medium transition cursor-pointer" disabled>Start Scanning</button>
+                <button id="sss_logout" class="flex-1 bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Log Out</button>
+            </div>
+            <p id="ext_log" class="text-xs text-slate-400">Last scan: <span id="last_scan"></span><br>Found: <span id="apt_count"></span></p>
+        </div>
+
+        <!-- TLS Details -->
+        <div id="tls_details" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">TLSContact Details<br><span class="text-xs text-slate-400">(Stored on your PC)</span></h4>
+            <div class="flex items-center justify-between gap-3">
+                <label for="tlsuser" class="text-xs text-slate-400 shrink-0">Email</label>
+                <input id="tlsuser" type="text" placeholder="TLSContact Email"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="tlspass" class="text-xs text-slate-400 shrink-0">Password</label>
+                <input id="tlspass" type="text" placeholder="TLSContact Password"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <div class="space-y-1">
+                <label for="tlsdest" class="text-xs text-slate-400">Destination</label>
+                <select id="tlsdest" name="tlsdest"
+                    class="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none text-center">
+                    <option value="de">Germany</option>
+                    <option value="fr">France</option>
+                    <option value="be">Belgium</option>
+                    <option value="it">Italy</option>
+                    <option value="nl">Netherlands</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="tlsid" class="text-xs text-slate-400 shrink-0">Group ID</label>
+                <input id="tlsid" type="text" placeholder="optional" pattern="[0-9]+"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <button id="tls_test" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Test Details</button>
+            <p id="tls_test_log" class="text-xs text-slate-400"></p>
+        </div>
+
+        <!-- Call to Action (Premium) -->
+        <div id="c2a" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">Subscribe for greater chances of Success!</h4>
+            <p class="text-xs text-slate-400">Our subscribers gain access to the below features and automatic captcha solving, automating the booking process for them! Just login and upgrade.</p>
+            <button id="c2a_premium" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Upgrade Now!</button>
+        </div>
+
+        <!-- Extension Settings -->
+        <div id="ext_settings" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">Extension Settings</h4>
+            <div class="flex items-center justify-between gap-3">
+                <label for="refresh_rate" class="text-xs text-slate-400 shrink-0">Refresh Rate <span class="text-xs text-slate-500">(seconds)</span></label>
+                <input type="text" id="refresh_rate" min="220" value="600" pattern="[0-9]+"
+                    class="w-20 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <p id="ext_yap" class="text-xs text-slate-400"></p>
+            <p class="text-xs text-slate-400">We recommend at least 220 seconds to avoid being blocked. <span class="text-red-400">Do not open TLS while the bot is running</span></p>
+            <div class="flex items-center justify-between">
+                <label for="prime_slots" class="text-xs text-slate-400">Include Prime Slots</label>
+                <input type="checkbox" id="prime_slots" name="primie" class="accent-indigo-500" />
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="reschedule_mode" class="text-xs text-slate-400">Reschedule Mode <span class="text-slate-500">(keep scanning after booking)</span></label>
+                <input type="checkbox" id="reschedule_mode" name="reschedule_mode" class="accent-indigo-500" />
+            </div>
+            <p id="current_booking_display" class="text-xs text-slate-400"></p>
+            <button id="copy_logs" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Copy Logs to Clipboard</button>
+            <p id="log_status" class="text-xs text-slate-400"></p>
+        </div>
+
+        <!-- Telegram Settings -->
+        <div id="telegram_settings" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">Telegram Notifications</h4>
+            <div class="flex items-center justify-between">
+                <label for="tg_enabled" class="text-xs text-slate-400">Enable Telegram</label>
+                <input type="checkbox" id="tg_enabled" name="tg_enabled" class="accent-indigo-500" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="tg_bot_token" class="text-xs text-slate-400 shrink-0">Bot Token</label>
+                <input id="tg_bot_token" type="text" placeholder="123456:ABC-DEF..."
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="tg_chat_id" class="text-xs text-slate-400 shrink-0">Chat ID</label>
+                <input id="tg_chat_id" type="text" placeholder="e.g. 123456789"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none text-center" />
+            </div>
+            <button id="tg_test" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white rounded-md py-2 text-sm font-medium transition cursor-pointer">Send Test Message</button>
+            <p id="tg_status" class="text-xs text-slate-400"></p>
+        </div>
+
+        <!-- Advanced Filtering -->
+        <div id="filter_settings" class="rounded-lg border border-slate-700 bg-slate-900 p-4 space-y-3">
+            <h4 class="text-sm font-semibold">Advanced Filtering</h4>
+            <div class="flex items-center justify-between gap-3">
+                <label for="start_date" class="text-xs text-slate-400 shrink-0">Earliest Date</label>
+                <input type="date" id="start_date" min="2025-11-18"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="last_date" class="text-xs text-slate-400 shrink-0">Latest Date</label>
+                <input type="date" id="last_date"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="start_time" class="text-xs text-slate-400 shrink-0">Earliest Time</label>
+                <input type="time" id="start_time" value="06:00" min="06:00" max="22:00"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <label for="last_time" class="text-xs text-slate-400 shrink-0">Latest Time</label>
+                <input type="time" id="last_time" value="22:00" min="06:00" max="22:00"
+                    class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <p class="text-xs text-slate-400">Preferred day(s) of the Week</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d0" name="days" value="0" class="accent-indigo-500" /> Sun</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d1" name="days" value="1" class="accent-indigo-500" /> Mon</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d2" name="days" value="2" class="accent-indigo-500" /> Tue</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d3" name="days" value="3" class="accent-indigo-500" /> Wed</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d4" name="days" value="4" class="accent-indigo-500" /> Thu</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d5" name="days" value="5" class="accent-indigo-500" /> Fri</label>
+                <label class="flex items-center gap-1 text-xs text-slate-300"><input type="checkbox" id="d6" name="days" value="6" class="accent-indigo-500" /> Sat</label>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
