@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+The format is based on [Common Changelog](https://common-changelog.org/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-03-02
+[1.0.0]: https://github.com/smol-ninja/schengen-visa-slot-sniper/releases/tag/v1.0.0
 
-Initial public release.
+## [1.0.0] - 2026-03-31
 
 ### Added
 
@@ -28,5 +29,3 @@ Initial public release.
 - Allow refresh rate changes while scanning is active
 - Avoid unnecessary credential refresh when next-month data is missing
 - Reduce log noise from Cloudflare cookie handler
-
-[0.1.0]: https://github.com/smol-ninja/schengen-visa-slot-sniper/releases/tag/v0.1.0
