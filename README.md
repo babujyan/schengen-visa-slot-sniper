@@ -1,10 +1,10 @@
-<div align="left">
-  <img src="resources/favicon.png" alt="Schengen Visa Slot Sniper" width="128" />
-  <h1>Schengen Visa Slot Sniper</h1>
-  <p>Chrome extension that automatically finds and books Schengen visa appointments on TLSContact.</p>
-</div>
+# Schengen Visa Slot Sniper
 
-## Features
+[![CI](https://github.com/smol-ninja/schengen-visa-slot-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/smol-ninja/schengen-visa-slot-sniper/actions/workflows/ci.yml)
+
+<img src="resources/favicon.png" alt="Schengen Visa Slot Sniper" width="128" />
+
+Chrome extension that automatically finds and books Schengen visa appointments on TLSContact.
 
 - Automatic appointment scanning with configurable refresh intervals
 - Auto-booking when slots are found
@@ -15,38 +15,27 @@
 
 ## Install
 
-1. Clone the repository:
+1. Clone and build:
 
 ```shell
-git clone https://github.com/smol-ninja/schengen-visa-extension.git
-cd schengen-visa-extension
-```
-
-2. Install dependencies and build:
-
-```shell
+git clone https://github.com/smol-ninja/schengen-visa-slot-sniper.git && cd schengen-visa-slot-sniper
 bun install
 just build
 ```
 
-3. Open `chrome://extensions/` in Chrome, enable **Developer Mode**, click **Load unpacked**, and select the project
-   directory.
+2. Open `chrome://extensions/`, enable **Developer Mode**, click **Load unpacked**, and select the project directory.
 
 ## Usage
 
-1. Open the extension popup.
-2. Enter your TLSContact email and password in the **TLSContact Details** section.
-3. Select your destination country.
-4. Click **Test Details** to verify your credentials.
-5. Configure your preferred refresh rate and filtering options.
-6. Click **Start Scanning**.
+1. Open the extension popup and enter your TLSContact credentials.
+2. Select your destination country and click **Test Details**.
+3. Configure refresh rate and filtering options.
+4. Click **Start Scanning**.
 
-The extension will scan for available appointments at your configured interval. When a matching slot is found, it
-attempts to book automatically and sends a desktop notification.
+The extension scans at your configured interval. When a matching slot is found, it books automatically and sends a
+desktop notification.
 
 ### Telegram Notifications
-
-To receive Telegram alerts:
 
 1. Create a bot via [@BotFather](https://t.me/BotFather) and copy the bot token.
 2. Get your Chat ID via [@userinfobot](https://t.me/userinfobot).
@@ -54,43 +43,8 @@ To receive Telegram alerts:
 
 ### Reschedule Mode
 
-When enabled, the extension continues scanning after a successful booking. If a better slot is found (earlier date or
-time), it cancels the existing appointment and books the new one.
-
-## Architecture
-
-```
-┌─────────────┐     chrome.storage.local     ┌──────────────────┐
-│  popup.js   │ ◄──────────────────────────► │  background.js   │
-│  (UI panel) │                              │  (service worker) │
-└─────────────┘                              └────────┬─────────┘
-                                                      │ spawns tab
-                                                      ▼
-                                             ┌──────────────────┐
-                                             │   content.js     │
-                                             │ (TLSContact DOM) │
-                                             └──────────────────┘
-```
-
-Three scripts communicate via `chrome.storage.local`:
-
-| Script | Role |
-|--------|------|
-| `resources/popup.js` | UI controls, settings, status display |
-| `resources/background.js` | Polling timer, appointment checking, credential refresh |
-| `content.js` | Injects into TLSContact pages, handles login, extracts data, books appointments |
-
-## Development
-
-Prerequisites: [Bun](https://bun.sh), [Just](https://github.com/casey/just)
-
-```shell
-bun install     # Install dependencies
-just build      # Compile Tailwind CSS (one-time)
-just watch      # Watch mode for CSS changes during development
-```
-
-After modifying HTML or JS files that reference Tailwind classes, rebuild CSS to ensure all utilities are included.
+When enabled, the extension continues scanning after a successful booking. If a better slot is found, it cancels the
+existing appointment and books the new one.
 
 ## Contributing
 
@@ -98,5 +52,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0. See [LICENSE](./LICENSE) for details.
-
+[GPL-3.0](./LICENSE)
